@@ -1,5 +1,5 @@
 const _middlewares = require('./middlewares');
-const urlPrefix = '/user';
+const urlPrefix = '';
 const routes = require('./routes');
 
 const middlewares = _middlewares.map(function(middleware) {

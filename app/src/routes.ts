@@ -1,13 +1,31 @@
-import { createBrowserRouter, type RouteObject } from 'react-router';
-import App from './App';
-import features from './features';
+import { createBrowserRouter, redirect, type RouteObject } from 'react-router';
+import authentication from './features/authentication/main';
 
-const routes: RouteObject[] = [];
+// import deasync from 'deasync';
+// import features from './features';
 
-features.forEach(async function (feature) {
-    const featureIndex: RouteObject = await import(`${feature}/index.ts`);
+// const routes: RouteObject[] = [];
 
-    routes.push(featureIndex);
-});
+// features.forEach(deasync(async function (feature) {
+//     const featureIndex: RouteObject = await import(`./features/${feature}/main.ts`);
 
-export default createBrowserRouter([...routes]);
+//     routes.push(featureIndex);
+// }));
+
+// for (const feature of features) {
+//     const featureIndex: RouteObject = await import(`./features/${feature}/main.ts`);
+
+//     routes.push(featureIndex);
+// }
+
+const routes: RouteObject[] = [
+    {
+        path: '/',
+        loader: function() {
+            throw redirect('/login');
+        },
+    },
+    ...authentication,
+];
+
+export default createBrowserRouter([...routes]);;
