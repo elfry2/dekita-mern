@@ -1,15 +1,12 @@
-import FormLayout from '../../layouts/FormLayout';
+import FormLayout from '../../layouts/Form';
 import Register from './Register';
 import Login from './Login';
+import redirectIfLoggedIn from '@/middlewares/redirectIfLoggedIn';
 
 export default [
     {
         Component: FormLayout,
-        loader: async function () {
-            return {
-                backUrl: null,
-            };
-        },
+        middleware: [redirectIfLoggedIn],
         children: [
             {
                 path: '/register',
@@ -17,8 +14,8 @@ export default [
             },
             {
                 path: '/login',
-                Component: Login
+                Component: Login,
             }
         ],
-    },
-]
+    }
+];

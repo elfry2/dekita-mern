@@ -1,5 +1,7 @@
-import { createBrowserRouter, redirect, type RouteObject } from 'react-router';
+import { createBrowserRouter, type RouteObject } from 'react-router';
+import home from './features/home/main';
 import authentication from './features/authentication/main';
+import dashboard from './features/dashboard/main';
 
 // import deasync from 'deasync';
 // import features from './features';
@@ -19,13 +21,9 @@ import authentication from './features/authentication/main';
 // }
 
 const routes: RouteObject[] = [
-    {
-        path: '/',
-        loader: function() {
-            throw redirect('/login');
-        },
-    },
+    ...home,
     ...authentication,
+    ...dashboard,
 ];
 
-export default createBrowserRouter([...routes]);;
+export default createBrowserRouter(routes);

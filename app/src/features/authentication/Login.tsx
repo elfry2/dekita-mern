@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, /* useContext */ } from 'react';
 import { Button } from "@/components/ui/button"
 import {
   CardAction,
@@ -10,10 +10,13 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import internalApi from '@/services/internalApi';
 import { AxiosError } from 'axios';
+// import { useAppDispatch } from '@/store';
+// import { login } from '@/features/authentication/slice';
+// import { AuthenticationContext } from '../../contexts/Authentication';
 
 interface Payload {
   username: String,
@@ -21,7 +24,6 @@ interface Payload {
 }
 
 export default function () {
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [error, setError] = useState('');
 
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -29,34 +31,40 @@ export default function () {
 
   const queryClient = useQueryClient();
 
+  // const dispatch = useAppDispatch();
+
+  // const {token, setToken} = useContext(AuthenticationContext);
+
+  const navigateTo = useNavigate();
+
   const { mutate } = useMutation({
     mutationFn: async function (payload: Payload) {
       const response = await internalApi.post('/login', payload);
 
-      return response.data;
+      const token = response.data.token;
+
+      localStorage.setItem('token', token);
+
+      // Can't redirect react-router based on redux store update.
+      // dispatch(login(token));
+
+      // Can't use state in react-router middleware either.
+      // if(setToken) setToken(token);
+
+      // "Usage of this hook should be uncommon. It's recommended
+      // to use the other APIs in this guide when possible."
+      // my arse
+      navigateTo('/login');
     },
     onSuccess: function () {
-      queryClient.invalidateQueries({queryKey: []});
-
-      // navigate('/dashboard');
+      queryClient.invalidateQueries({ queryKey: [] });
     },
-    onError: function(error) {
-      if(error instanceof AxiosError) {
+    onError: function (error) {
+      if (error instanceof AxiosError) {
         setError(error.response?.data.error);
       }
     }
   });
-
-  const handleInputUpdate = function () {
-    setIsSubmitDisabled(true);
-
-    if (
-      usernameRef.current?.value != ''
-      && passwordRef.current?.value != ''
-    ) {
-      setIsSubmitDisabled(false);
-    }
-  }
 
   const handleSubmit = function (event: React.SyntheticEvent) {
     event.preventDefault();
@@ -84,29 +92,29 @@ export default function () {
         <div className="flex flex-col gap-6">
           <div className="grid gap-2">
             <Label htmlFor="username">Username</Label>
-          <Input
-            ref={usernameRef}
-            id="username"
-            type="text"
-            required
-            autoFocus
-          />
-        </div>
-        <div className="grid gap-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            {/* <a
+            <Input
+              ref={usernameRef}
+              id="username"
+              type="text"
+              required
+              autoFocus
+            />
+          </div>
+          <div className="grid gap-2">
+            <div className="flex items-center">
+              <Label htmlFor="password">Password</Label>
+              {/* <a
                   href="#"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
                 </a> */}
+            </div>
+            <Input ref={passwordRef} id="password" type="password" required />
           </div>
-          <Input ref={passwordRef} id="password" type="password" required />
         </div>
-      </div>
-    </form>
-  </CardContent >
+      </form>
+    </CardContent >
     <CardFooter className="flex-col gap-3">
       <Button onSubmit={handleSubmit} onClick={handleSubmit} type="submit" className="w-full">
         Sign In

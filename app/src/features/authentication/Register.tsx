@@ -1,10 +1,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useRef, useState, /* useContext */ } from "react";
 import { Link, useNavigate } from 'react-router';
 import { AxiosError } from "axios";
 import internalApi from '@/services/internalApi';
-import { useSelector, useDispatch } from 'react-redux';
 import { Button } from "@/components/ui/button";
 import {
   CardAction,
@@ -16,6 +15,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+// import { login } from "@/features/authentication/slice";
+// import { useAppDispatch } from "@/store";
+// import { AuthenticationContext } from "../../contexts/Authentication";
 
 interface Payload {
   username: String,
@@ -30,24 +32,36 @@ export default function () {
   const passwordRef = useRef<HTMLInputElement>(null);
   const passwordConfirmationRef = useRef<HTMLInputElement>(null);
 
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const selector = useSelector();;
-  const dispatch = useDispatch();
+  // const dispatch = useAppDispatch();
+
+  // const {token, setToken} = useContext(AuthenticationContext);
+
+  const navigateTo = useNavigate();
 
   const { mutate } = useMutation({
     mutationFn: async function request(payload: Payload) {
       setError('');
-      
+
       const response
         = await internalApi.post('/register', payload);
 
-      return response.data;
+      const token = response.data.token;
+
+      localStorage.setItem('token', token);
+
+      // Can't redirect react-router based on redux store update.
+      // dispatch(login(token));
+
+      // if (setToken) setToken(token);
+
+      // "Usage of this hook should be uncommon. It's recommended
+      // to use the other APIs in this guide when possible."
+      // my arse
+      navigateTo('/register');
     },
     onSuccess: async function () {
       queryClient.invalidateQueries({ queryKey: [] });
-
-      // navigate('/dashboard');
     },
     onError: function (error) {
       if (error instanceof AxiosError) {

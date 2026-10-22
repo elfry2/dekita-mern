@@ -19,6 +19,7 @@ export default function () {
         <div className="w-full max-w-sm flex flex-col gap-3">
             {backUrl && <Link to={backUrl ?? ''}><Button variant="link"><ChevronLeft />Back</Button></Link>}
             <Card className="w-full max-w-sm">
+                {/* {children} */}
                 <Outlet />
             </Card>
         </div>
